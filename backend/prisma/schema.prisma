@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String @unique
+  password String // Hashed
+  role     String @default("staff")
+}
+
+model Zone {
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  capacity          Int
+  current_occupancy Int        @default(0)
+  status            String     @default("Normal") // Normal, Warning, Critical
+  incidents         Incident[]
+}
+
+model Incident {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  zone_id     String   @db.ObjectId
+  zone        Zone     @relation(fields: [zone_id], references: [id])
+  description String
+  severity    String   @default("low") // low, medium, high, critical
+  status      String   @default("open") // open, resolved
+  reported_by String
+  created_at  DateTime @default(now())
+}

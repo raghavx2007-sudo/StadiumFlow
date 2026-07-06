@@ -1,0 +1,20 @@
+{
+  "name": "nchal-backend",
+  "version": "1.0.0",
+  "description": "Backend for MatchDay Operations Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.17.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "prisma": "^5.17.0"
+  }
+}

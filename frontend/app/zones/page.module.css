@@ -1,0 +1,63 @@
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.zonesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.statusNormal {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.statusWarning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.statusCritical {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.progressContainer {
+  margin-top: 1rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+}
+
+.progressFill.statusNormal {
+  background-color: var(--success);
+}
+
+.progressFill.statusWarning {
+  background-color: var(--warning);
+}
+
+.progressFill.statusCritical {
+  background-color: var(--danger);
+}
