@@ -29,9 +29,16 @@ export default function IncidentsPage() {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     fetch(`${apiUrl}/api/incidents`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
-        setIncidents(data);
+        if (Array.isArray(data)) {
+          setIncidents(data);
+        } else {
+          throw new Error(data.error || 'Invalid data format received');
+        }
         setLoading(false);
       })
       .catch(err => {

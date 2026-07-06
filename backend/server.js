@@ -42,7 +42,8 @@ app.get('/api/zones', async (req, res) => {
     const zones = await prisma.zone.findMany();
     res.json(zones);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch zones' });
+    console.error("ZONES ERROR:", error);
+    res.status(500).json({ error: 'Failed to fetch zones', details: error.message });
   }
 });
 
@@ -53,7 +54,8 @@ app.get('/api/incidents', async (req, res) => {
     });
     res.json(incidents);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch incidents' });
+    console.error("INCIDENTS ERROR:", error);
+    res.status(500).json({ error: 'Failed to fetch incidents', details: error.message });
   }
 });
 
