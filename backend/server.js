@@ -13,7 +13,7 @@ const { PrismaClient } = require('@prisma/client');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: '*' }
+  cors: { origin: process.env.FRONTEND_URL || 'http://localhost:3000' }
 });
 
 const prisma = new PrismaClient();
@@ -22,9 +22,14 @@ const PORT = process.env.PORT || 5000;
 // Security and Efficiency Middleware
 app.use(helmet()); // Secure HTTP headers
 app.use(compression()); // Compress payloads for efficiency
-app.use(cors({ origin: '*' })); // CORS policy
+app.use(cors({ origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'https://stadium-flow-rose.vercel.app'] })); // Strict CORS policy
 app.use(express.json());
 app.use(mongoSanitize()); // Prevent NoSQL Injection
+
+// API Documentation (Swagger)
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // WebSockets Real-time connection (Problem Statement alignment)
 io.on('connection', (socket) => {

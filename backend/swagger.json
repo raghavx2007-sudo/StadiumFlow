@@ -1,0 +1,36 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "StadiumFlow API",
+    "version": "1.0.0",
+    "description": "API documentation for the StadiumFlow Smart Operations Dashboard"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/zones": {
+      "get": {
+        "summary": "Get all stadium zones",
+        "responses": {
+          "200": {
+            "description": "A list of stadium zones"
+          }
+        }
+      }
+    },
+    "/incidents": {
+      "get": {
+        "summary": "Get all active incidents",
+        "responses": {
+          "200": {
+            "description": "A list of incidents"
+          }
+        }
+      }
+    }
+  }
+}
