@@ -129,7 +129,7 @@ describe('ZonesPage Component', () => {
       expect(screen.getByRole('main')).toBeInTheDocument();
     });
 
-    it('has a regions labelled "Stadium Zones"', async () => {
+    it('has a region labelled "Stadium Zones"', async () => {
       mockFetchSuccess();
       await act(async () => { render(<ZonesPage />); });
       expect(screen.getByRole('region', { name: /stadium zones/i })).toBeInTheDocument();

@@ -34,7 +34,11 @@ async function createTestIncident(zoneId, overrides = {}) {
 
 afterAll(async () => {
   await prisma.$disconnect();
-  server.close();
+  if (server.io) {
+    server.io.close();
+  } else {
+    server.close();
+  }
 });
 
 // ─── Zone Endpoints ───────────────────────────────────────────────────────────
