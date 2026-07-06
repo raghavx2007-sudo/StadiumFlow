@@ -93,6 +93,7 @@ seedDatabase().catch(console.error);
 app.get('/api/zones', async (req, res) => {
   try {
     const zones = await prisma.zone.findMany();
+    res.set('Cache-Control', 'public, max-age=300'); // Efficiency cache optimization
     res.json(zones);
   } catch (error) {
     console.error("ZONES ERROR:", error);
@@ -109,6 +110,7 @@ app.get('/api/incidents', async (req, res) => {
     const incidents = await prisma.incident.findMany({
       include: { zone: true }
     });
+    res.set('Cache-Control', 'public, max-age=60'); // Efficiency cache optimization
     res.json(incidents);
   } catch (error) {
     console.error("INCIDENTS ERROR:", error);
