@@ -32,4 +32,6 @@ model Incident {
   status      String   @default("open") // open, resolved
   reported_by String
   created_at  DateTime @default(now())
+
+  @@index([zone_id])
 }

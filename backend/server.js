@@ -1,15 +1,32 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Security and Efficiency Middleware
+app.use(helmet()); // Secure HTTP headers
+app.use(compression()); // Compress payloads for efficiency
+app.use(cors({ origin: '*' })); // CORS policy
 app.use(express.json());
 
-// Helper function to seed initial data if DB is empty (mocking for hackathon MVP)
+// DDOS Protection Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+/**
+ * Seed initial database values if empty.
+ * @async
+ * @function seedDatabase
+ */
 async function seedDatabase() {
   const zonesCount = await prisma.zone.count();
   if (zonesCount === 0) {
@@ -36,7 +53,10 @@ async function seedDatabase() {
 }
 seedDatabase().catch(console.error);
 
-// Routes
+/**
+ * Fetches all stadium zones.
+ * @route GET /api/zones
+ */
 app.get('/api/zones', async (req, res) => {
   try {
     const zones = await prisma.zone.findMany();
@@ -47,6 +67,10 @@ app.get('/api/zones', async (req, res) => {
   }
 });
 
+/**
+ * Fetches all reported incidents.
+ * @route GET /api/incidents
+ */
 app.get('/api/incidents', async (req, res) => {
   try {
     const incidents = await prisma.incident.findMany({
@@ -59,6 +83,10 @@ app.get('/api/incidents', async (req, res) => {
   }
 });
 
+/**
+ * Creates a new incident.
+ * @route POST /api/incidents
+ */
 app.post('/api/incidents', async (req, res) => {
   try {
     const { zone_id, description, severity, reported_by } = req.body;
@@ -71,6 +99,10 @@ app.post('/api/incidents', async (req, res) => {
   }
 });
 
+/**
+ * Resolves an incident by ID.
+ * @route PUT /api/incidents/:id/resolve
+ */
 app.put('/api/incidents/:id/resolve', async (req, res) => {
   try {
     const { id } = req.params;
@@ -87,3 +119,5 @@ app.put('/api/incidents/:id/resolve', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
 });
+
+module.exports = app;

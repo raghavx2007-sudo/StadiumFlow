@@ -114,20 +114,20 @@ export default function IncidentsPage() {
         </div>
       )}
 
-      <div className="card">
-        {loading && <p>Loading incidents...</p>}
-        <table className={styles.table}>
+      <div className="card" role="region" aria-label="Incidents List">
+        {loading && <p aria-live="polite">Loading incidents...</p>}
+        <table className={styles.table} aria-label="Stadium Incidents">
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Location</th>
-              <th>Severity</th>
-              <th>Status</th>
-              <th>Reported By</th>
-              <th>Action</th>
+              <th scope="col">Description</th>
+              <th scope="col">Location</th>
+              <th scope="col">Severity</th>
+              <th scope="col">Status</th>
+              <th scope="col">Reported By</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody aria-live="polite">
             {incidents.map((incident) => (
               <tr key={incident.id}>
                 <td><strong>{incident.description}</strong></td>
