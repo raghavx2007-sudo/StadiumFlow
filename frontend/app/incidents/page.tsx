@@ -81,10 +81,12 @@ export default function IncidentsPage() {
   return (
     <main className="container">
       <div className="flex items-center justify-between" style={{ marginBottom: '2rem' }}>
-        <h1 className={styles.title}>Incident Tracker</h1>
-        <button onClick={() => setIsFormOpen(!isFormOpen)}>
-          {isFormOpen ? 'Cancel' : '+ Report Incident'}
-        </button>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Incident Tracker</h1>
+          <button aria-label="Report a new incident" onClick={() => setIsFormOpen(!isFormOpen)}>
+            {isFormOpen ? 'Cancel' : '+ Report Incident'}
+          </button>
+        </div>
       </div>
 
       {error && <p className="status-critical">Error: {error}. Backend must be running on port 5000.</p>}
@@ -109,7 +111,9 @@ export default function IncidentsPage() {
                 <option value="critical">Critical</option>
               </select>
             </div>
-            <button type="submit">Submit Report</button>
+            <div className={styles.formGroup}>
+              <button type="submit" aria-label="Submit the incident report">Submit Report</button>
+            </div>
           </form>
         </div>
       )}
@@ -146,6 +150,7 @@ export default function IncidentsPage() {
                 <td>
                   {incident.status === 'open' && (
                     <button 
+                      aria-label={`Mark incident ${incident.id} as resolved`}
                       className={styles.resolveBtn}
                       onClick={() => resolveIncident(incident.id)}
                     >

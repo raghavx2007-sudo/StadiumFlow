@@ -33,9 +33,9 @@ export default function Home() {
       </section>
 
       <section className={styles.recentIncidents}>
-        <div className="flex items-center justify-between">
-          <h2>Recent Critical Incidents</h2>
-          <button>View All</button>
+        <div className={styles.cardHeader}>
+          <h2>Live Zones</h2>
+          <button aria-label="View all stadium zones">View All</button>
         </div>
         <div className={styles.incidentList}>
           <div className={styles.incidentItem}>

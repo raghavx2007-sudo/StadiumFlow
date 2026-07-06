@@ -19,8 +19,8 @@ export default function Sidebar() {
           Incidents
         </Link>
       </nav>
-      <div className={styles.footer}>
-        <button className={styles.logoutBtn}>Logout</button>
+      <div className={styles.bottomNav}>
+        <button className={styles.logoutBtn} aria-label="Log out of dashboard">Logout</button>
       </div>
     </aside>
   );
