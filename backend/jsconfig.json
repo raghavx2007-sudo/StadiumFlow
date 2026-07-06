@@ -3,7 +3,8 @@
     "target": "ES6",
     "module": "commonjs",
     "checkJs": true,
-    "strict": true
+    "strict": true,
+    "types": ["jest"]
   },
   "include": ["**/*.js"],
   "exclude": ["node_modules", "coverage"]

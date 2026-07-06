@@ -238,7 +238,7 @@ describe('IncidentsPage Component', () => {
       mockFetchSuccess();
       await act(async () => { render(<IncidentsPage />); });
       const headers = screen.getAllByRole('columnheader');
-      headers.forEach(th => expect(th).toHaveAttribute('scope', 'col'));
+      headers.forEach((th: HTMLElement) => expect(th).toHaveAttribute('scope', 'col'));
     });
 
     it('report button has aria-expanded reflecting form state', async () => {
