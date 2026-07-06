@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './page.module.css';
 
 interface Incident {
   id: string;
-  title?: string; // Using description as title from backend
+  title?: string;
   description: string;
   zone?: { name: string };
   severity: string;
@@ -14,6 +14,14 @@ interface Incident {
   created_at: string;
 }
 
+/** Valid severity values for incident reports */
+const SEVERITY_OPTIONS = ['low', 'warning', 'critical'] as const;
+type Severity = typeof SEVERITY_OPTIONS[number];
+
+/**
+ * IncidentsPage: Displays the stadium incident tracker with the ability
+ * to report new incidents and resolve existing ones in real-time.
+ */
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -23,12 +31,23 @@ export default function IncidentsPage() {
   // Form state
   const [desc, setDesc] = useState('');
   const [zoneId, setZoneId] = useState('');
-  const [severity, setSeverity] = useState('low');
+  const [severity, setSeverity] = useState<Severity>('low');
 
+  // Ref to abort in-flight fetch on unmount
+  const abortRef = useRef<AbortController | null>(null);
+
+  /**
+   * Fetches all incidents from the backend API.
+   * Uses an AbortController so pending requests are cancelled on unmount.
+   */
   const fetchIncidents = () => {
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    fetch(`${apiUrl}/api/incidents`)
+    fetch(`${apiUrl}/api/incidents`, { signal: controller.signal })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -42,6 +61,7 @@ export default function IncidentsPage() {
         setLoading(false);
       })
       .catch(err => {
+        if (err.name === 'AbortError') return;
         setError(err.message);
         setLoading(false);
       });
@@ -49,68 +69,124 @@ export default function IncidentsPage() {
 
   useEffect(() => {
     fetchIncidents();
+    return () => {
+      if (abortRef.current) abortRef.current.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Sends a PUT request to mark an incident as resolved,
+   * then refreshes the incidents list.
+   * @param id - The incident ID to resolve
+   */
   const resolveIncident = (id: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     fetch(`${apiUrl}/api/incidents/${id}/resolve`, { method: 'PUT' })
-      .then(() => fetchIncidents())
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to resolve incident');
+        return fetchIncidents();
+      })
+      .catch(err => setError(err.message));
   };
 
+  /**
+   * Submits a new incident report to the backend.
+   * Validates that description is non-empty before sending.
+   * @param e - The form submit event
+   */
   const submitIncident = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!desc.trim()) return;
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     fetch(`${apiUrl}/api/incidents`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        zone_id: zoneId || 'temp-id', // In a real app, select a real zone id
-        description: desc,
-        severity: severity,
+        zone_id: zoneId || null,
+        description: desc.trim(),
+        severity,
         reported_by: 'Current User'
       })
     })
-    .then(() => {
-      setIsFormOpen(false);
-      fetchIncidents();
-    })
-    .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to submit incident');
+        setIsFormOpen(false);
+        setDesc('');
+        setZoneId('');
+        setSeverity('low');
+        return fetchIncidents();
+      })
+      .catch(err => setError(err.message));
   };
 
   return (
-    <main className="container">
+    <main className="container" role="main">
       <div className="flex items-center justify-between" style={{ marginBottom: '2rem' }}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Incident Tracker</h1>
-          <button aria-label="Report a new incident" onClick={() => setIsFormOpen(!isFormOpen)}>
+          <h1 className={styles.title}>Incident Management</h1>
+          <button
+            aria-label={isFormOpen ? 'Cancel incident report' : 'Report a new incident'}
+            aria-expanded={isFormOpen}
+            onClick={() => setIsFormOpen(!isFormOpen)}
+          >
             {isFormOpen ? 'Cancel' : '+ Report Incident'}
           </button>
         </div>
       </div>
 
-      {error && <p className="status-critical">Error: {error}. Backend must be running on port 5000.</p>}
+      {error && (
+        <p className="status-critical" role="alert" aria-live="assertive">
+          Error: {error}. Please ensure the backend is running.
+        </p>
+      )}
 
       {isFormOpen && (
-        <div className={`card ${styles.formContainer}`}>
-          <h3>Report New Incident</h3>
-          <form className={styles.form} onSubmit={submitIncident}>
+        <div className={`card ${styles.formContainer}`} role="region" aria-label="Report New Incident Form">
+          <h2 id="form-heading">Report New Incident</h2>
+          <form className={styles.form} onSubmit={submitIncident} aria-labelledby="form-heading" noValidate>
             <div className={styles.formGroup}>
-              <label>Description</label>
-              <input type="text" required value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g., Broken Turnstile" />
-              <label htmlFor="description">Incident Description</label>
-              <input id="description" type="text" required value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g., Broken Turnstile" />
+              <label htmlFor="description">Incident Description <span aria-hidden="true">*</span></label>
+              <input
+                id="description"
+                type="text"
+                required
+                maxLength={500}
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                placeholder="e.g., Broken Turnstile"
+                aria-required="true"
+                aria-describedby="desc-hint"
+              />
+              <span id="desc-hint" style={{ fontSize: '0.75rem', color: '#999' }}>
+                {desc.length}/500 characters
+              </span>
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="zoneId">Zone ID (Optional for MVP)</label>
-              <input id="zoneId" type="text" value={zoneId} onChange={e => setZoneId(e.target.value)} placeholder="e.g., North Gate" />
+              <label htmlFor="zoneId">Zone ID (Optional)</label>
+              <input
+                id="zoneId"
+                type="text"
+                value={zoneId}
+                onChange={e => setZoneId(e.target.value)}
+                placeholder="e.g., North Stand zone ID"
+              />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="severity">Severity Level</label>
-              <select id="severity" required value={severity} onChange={e => setSeverity(e.target.value)}>
-                <option value="low">Low</option>
-                <option value="warning">Warning</option>
-                <option value="critical">Critical</option>
+              <label htmlFor="severity">Severity Level <span aria-hidden="true">*</span></label>
+              <select
+                id="severity"
+                required
+                value={severity}
+                onChange={e => setSeverity(e.target.value as Severity)}
+                aria-required="true"
+              >
+                {SEVERITY_OPTIONS.map(opt => (
+                  <option key={opt} value={opt}>
+                    {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                  </option>
+                ))}
               </select>
             </div>
             <div className={styles.formGroup}>
@@ -133,7 +209,7 @@ export default function IncidentsPage() {
               <th scope="col">Action</th>
             </tr>
           </thead>
-          <tbody aria-live="polite">
+          <tbody aria-live="polite" aria-relevant="additions removals">
             {incidents.map((incident) => (
               <tr key={incident.id}>
                 <td><strong>{incident.description}</strong></td>
@@ -151,8 +227,8 @@ export default function IncidentsPage() {
                 <td>{incident.reported_by}</td>
                 <td>
                   {incident.status === 'open' && (
-                    <button 
-                      aria-label={`Mark incident ${incident.id} as resolved`}
+                    <button
+                      aria-label={`Mark incident "${incident.description}" as resolved`}
                       className={styles.resolveBtn}
                       onClick={() => resolveIncident(incident.id)}
                     >
@@ -162,6 +238,13 @@ export default function IncidentsPage() {
                 </td>
               </tr>
             ))}
+            {!loading && incidents.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '1rem' }}>
+                  No incidents reported.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
