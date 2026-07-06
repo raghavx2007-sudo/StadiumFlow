@@ -35,6 +35,10 @@ jobs:
     - name: Install Frontend Dependencies
       run: npm ci
       working-directory: ./frontend
+      
+    - name: Run Frontend Linting
+      run: npm run lint
+      working-directory: ./frontend
 
     - name: Run Frontend Tests
       run: npm run test:coverage

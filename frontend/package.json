@@ -2,6 +2,8 @@
   "name": "nchal",
   "version": "0.1.0",
   "private": true,
+  "description": "Smart Stadiums & Tournament Operations Real-Time Dashboard",
+  "keywords": ["smart", "stadiums", "tournament", "operations", "dashboard", "real-time", "crowd", "incidents"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
