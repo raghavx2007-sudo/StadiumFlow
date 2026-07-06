@@ -98,14 +98,16 @@ export default function IncidentsPage() {
             <div className={styles.formGroup}>
               <label>Description</label>
               <input type="text" required value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g., Broken Turnstile" />
+              <label htmlFor="description">Incident Description</label>
+              <input id="description" type="text" required value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g., Broken Turnstile" />
             </div>
             <div className={styles.formGroup}>
-              <label>Zone ID (Optional for MVP)</label>
-              <input type="text" value={zoneId} onChange={e => setZoneId(e.target.value)} placeholder="e.g., North Gate" />
+              <label htmlFor="zoneId">Zone ID (Optional for MVP)</label>
+              <input id="zoneId" type="text" value={zoneId} onChange={e => setZoneId(e.target.value)} placeholder="e.g., North Gate" />
             </div>
             <div className={styles.formGroup}>
-              <label>Severity</label>
-              <select required value={severity} onChange={e => setSeverity(e.target.value)}>
+              <label htmlFor="severity">Severity Level</label>
+              <select id="severity" required value={severity} onChange={e => setSeverity(e.target.value)}>
                 <option value="low">Low</option>
                 <option value="warning">Warning</option>
                 <option value="critical">Critical</option>

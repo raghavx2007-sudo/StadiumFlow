@@ -6,8 +6,9 @@ import Sidebar from "./components/Sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "StadiumFlow",
-  description: "Smart Stadiums & Tournament Operations Real-Time Dashboard",
+  title: "StadiumFlow: Smart Stadiums & Tournament Operations",
+  description: "Real-time dashboard for high-density crowd control, dynamic zone optimization, and emergency incident response for stadium operations.",
+  keywords: ["smart stadiums", "tournament operations", "dashboard", "real-time", "crowd control", "incident response", "optimization"],
   viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
