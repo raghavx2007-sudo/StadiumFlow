@@ -149,9 +149,10 @@ app.put('/api/incidents/:id/resolve', async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`Backend server running on http://localhost:${PORT}`);
+  });
+}
 
-
-module.exports = app;
+module.exports = server;
