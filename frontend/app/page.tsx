@@ -37,7 +37,7 @@ export default function Home() {
           <h2>Live Zones</h2>
           <button aria-label="View all stadium zones">View All</button>
         </div>
-        <div className={styles.incidentList}>
+        <div className={styles.incidentList} aria-live="polite">
           <div className={styles.incidentItem}>
             <div>
               <strong>Medical Emergency</strong>

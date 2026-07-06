@@ -5,6 +5,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Server } = require('socket.io');
@@ -26,6 +28,8 @@ app.use(compression()); // Compress payloads for efficiency
 app.use(cors({ origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'https://stadium-flow-rose.vercel.app'] })); // Strict CORS policy
 app.use(express.json());
 app.use(mongoSanitize()); // Prevent NoSQL Injection
+app.use(xss()); // Prevent Cross Site Scripting
+app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // API Documentation (Swagger)
 const swaggerUi = require('swagger-ui-express');
